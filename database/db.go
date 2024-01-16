@@ -4,20 +4,18 @@ import (
 	"os"
 
 	"github.com/dee-d-dev/api/v1/models"
-	"github.com/joho/godotenv"
+	"log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 func Connect() *gorm.DB {
 
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("No .env file found")
+	dsn, exists := os.LookupEnv("DB_USER")
 
+	if !exists {
+		log.Fatal("DB_USER not set")
 	}
-	
-	dsn := os.Getenv("DB_USER")
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -29,8 +27,7 @@ func Connect() *gorm.DB {
 	return db
 }
 
-
-type Handler struct{
+type Handler struct {
 	DB *gorm.DB
 }
 
@@ -39,4 +36,3 @@ func New(db *gorm.DB) Handler {
 		DB: db,
 	}
 }
-

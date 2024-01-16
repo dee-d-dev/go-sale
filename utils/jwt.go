@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"log"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var atSecretKey = []byte(os.Getenv("ACCESS_SECRET"))
-var rtSecretKey = []byte(os.Getenv("REFRESH_SECRET"))
+// var atSecretKey string
+
 
 type Claims struct {
 	Email string `json:"email"`
@@ -21,6 +22,21 @@ type Tokens struct {
 }
 
 func GenerateToken(email string) (Tokens, error) {
+	AT_SECRET, exists := os.LookupEnv("AT_SECRET")
+
+	if !exists {
+		log.Fatal("AT_SECRET not set")
+	}
+
+	atSecretKeyExists := []byte(AT_SECRET)
+
+	RT_SECRET, exists := os.LookupEnv("RT_SECRET")
+
+	if !exists {
+		log.Fatal("RT_SECRET not set")
+	}
+	rtSecretKeyExists := []byte(RT_SECRET)
+
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
@@ -28,7 +44,7 @@ func GenerateToken(email string) (Tokens, error) {
 		},
 	})
 
-	accessTokenString, err := accessToken.SignedString(atSecretKey)
+	accessTokenString, err := accessToken.SignedString(atSecretKeyExists)
 
 	if err != nil {
 		return Tokens{}, err
@@ -41,7 +57,7 @@ func GenerateToken(email string) (Tokens, error) {
 		},
 	})
 
-	refreshTokenString, err := refreshToken.SignedString(rtSecretKey)
+	refreshTokenString, err := refreshToken.SignedString(rtSecretKeyExists)
 
 	if err != nil {
 		return Tokens{}, err

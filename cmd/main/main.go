@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
 	"github.com/dee-d-dev/api/v1/router"
 	"github.com/dee-d-dev/database"
 )
@@ -11,6 +12,10 @@ import (
 
 func main() {
 
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
+	
 	db := database.Connect()	
 	
 	database.New(db)

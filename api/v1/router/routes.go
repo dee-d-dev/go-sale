@@ -1,8 +1,11 @@
 package router
 
 import (
-	"github.com/gorilla/mux"
+	"net/http"
+
 	"github.com/dee-d-dev/api/v1/controllers"
+	"github.com/dee-d-dev/middlewares"
+	"github.com/gorilla/mux"
 )
 
 func SetupRoutes() *mux.Router {
@@ -18,6 +21,9 @@ func SetupRoutes() *mux.Router {
 	v1.HandleFunc("/health", controllers.HealthCheck).Methods("GET")
 
 	v1.HandleFunc("/login", controllers.Login).Methods("POST")
+
+	protectedWithMiddlware := http.HandlerFunc(controllers.ProtectedEndpoint)
+	v1.Handle("/protected", middlewares.TokenMiddleWare(protectedWithMiddlware)).Methods("GET")
 
 	return r
 
