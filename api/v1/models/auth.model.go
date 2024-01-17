@@ -10,4 +10,5 @@ type Users struct {
 	Email     string `json:"email"`
 	Password  string `json:"-"`
 	Address   string `json:"address"`
+	RToken	string `json:"rToken"`
 }

@@ -16,12 +16,8 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-type Tokens struct {
-	AccessToken  string
-	RefreshToken string
-}
 
-func GenerateToken(email string) (Tokens, error) {
+func GenerateAccessToken(email string) (string, error) {
 	AT_SECRET, exists := os.LookupEnv("AT_SECRET")
 
 	if !exists {
@@ -29,13 +25,6 @@ func GenerateToken(email string) (Tokens, error) {
 	}
 
 	atSecretKeyExists := []byte(AT_SECRET)
-
-	RT_SECRET, exists := os.LookupEnv("RT_SECRET")
-
-	if !exists {
-		log.Fatal("RT_SECRET not set")
-	}
-	rtSecretKeyExists := []byte(RT_SECRET)
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		Email: email,
@@ -47,8 +36,22 @@ func GenerateToken(email string) (Tokens, error) {
 	accessTokenString, err := accessToken.SignedString(atSecretKeyExists)
 
 	if err != nil {
-		return Tokens{}, err
+		return "", err
 	}
+
+	
+	return accessTokenString, nil
+}
+
+
+func GenerateRefreshToken(email string) (string, error ){
+	RT_SECRET, exists := os.LookupEnv("RT_SECRET")
+
+	if !exists {
+		log.Fatal("RT_SECRET not set")
+	}
+
+	rtSecretKeyExists := []byte(RT_SECRET)
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		Email: email,
@@ -60,11 +63,9 @@ func GenerateToken(email string) (Tokens, error) {
 	refreshTokenString, err := refreshToken.SignedString(rtSecretKeyExists)
 
 	if err != nil {
-		return Tokens{}, err
+		return "", err
 	}
 
-	return Tokens{
-		AccessToken:  accessTokenString,
-		RefreshToken: refreshTokenString,
-	}, nil
+	return refreshTokenString, nil
+
 }

@@ -77,18 +77,30 @@ func Login(w http.ResponseWriter, r *http.Request){
 		log.Fatal("Password does not match")
 	}
 
-	tokens, err := utils.GenerateToken(existingUser.Email)
+	accessToken, err := utils.GenerateAccessToken(existingUser.Email)
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	refreshToken, err := utils.GenerateRefreshToken(existingUser.Email)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resultT := db.Model(&models.Users{}).Where("email = ?", existingUser.Email).Update("r_token", refreshToken)
+
+	if resultT.Error != nil {
+		log.Fatal(resultT.Error)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(LoginResponse{
-		AccessToken: tokens.AccessToken,
-		RefreshToken: tokens.RefreshToken,
+		AccessToken: accessToken,
+		RefreshToken: refreshToken,
 	})
 }
 
@@ -100,3 +112,19 @@ func ProtectedEndpoint (w http.ResponseWriter, r *http.Request) {
 		Status: http.StatusOK,
 	})
 }
+
+// func Refresh(w http.ResponseWriter, r *http.Request) {
+	
+
+// 	refreshToken, err := utils.GenerateRefreshToken()
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	if(refreshToken != r.Header.Get("Authorization")) {
+// 		log.Fatal("Invalid refresh token")
+// 	}
+
+// 	w.Header().Set("Content-Type", "application/json")
+// }
