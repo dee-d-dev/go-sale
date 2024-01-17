@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
+	// "strings"
 
 	"os"
 
@@ -33,6 +33,7 @@ func TokenMiddleWare(next http.Handler) http.Handler {
 		if err != nil || !token.Valid {
 			log.Printf("Error while parsing token: %v", err)
 			http.Error(w, "Unauthorised: Invalid token", http.StatusUnauthorized)
+
 			return
 		}
 
@@ -42,18 +43,24 @@ func TokenMiddleWare(next http.Handler) http.Handler {
 }
 
 func extractToken(r *http.Request) string {
-	token := r.Header.Get("Authorization")
+	// token := r.Header.Get("Authorization")
+	token, err := r.Cookie("access_token")
 
-	if token == "" {
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if token.Value == "" {
 		return ""
 	}
 
-	parts := strings.Split(token, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		return ""
-	}
+	// parts := strings.Split(token, " ")
+	// if len(parts) != 2 || parts[0] != "Bearer" {
+	// 	return ""
+	// }
 
 	// Return the token without the "Bearer " prefix
-	return parts[1]
+	// return parts[1]
+	return token.Value
 
 }

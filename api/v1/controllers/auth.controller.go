@@ -80,11 +80,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name: "access_token",
+		Value: accessToken,
+		HttpOnly: true,
+	})
+
+
 	refreshToken, err := utils.GenerateRefreshToken(existingUser.Email)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name: "refresh_token",
+		Value: refreshToken,
+		HttpOnly: true,
+	})
 
 	resultT := db.Model(&models.Users{}).Where("email = ?", existingUser.Email).Update("r_token", refreshToken)
 
@@ -121,17 +134,24 @@ type RefreshTokenResponse struct{
 func Refresh(w http.ResponseWriter, r *http.Request) {
 
 	db := database.Connect()
-	var rt RefreshToken
+	// var rt RefreshToken
 	var user models.Users
-	err := json.NewDecoder(r.Body).Decode(&rt)
+	// // err := json.NewDecoder(r.Body).Decode(&rt)
 
+
+	// if err != nil {
+	// 	log.Fatal(err)
+		
+	// }
+
+	
+	refreshCookie, err := r.Cookie("refresh_token")
 
 	if err != nil {
 		log.Fatal(err)
-		
 	}
 
-	err = db.Where("r_token = ?", rt.Token).First(&user).Error
+	err = db.Where("r_token = ?", refreshCookie.Value).First(&user).Error
 
 	if err != nil {
 		
@@ -145,6 +165,12 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name: "access_token",
+		Value: newAcessToken,
+		HttpOnly: true,
+	})
 
 
 
