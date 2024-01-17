@@ -24,23 +24,22 @@ func TokenMiddleWare(next http.Handler) http.Handler {
 
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unauthorized")
-				
+
 			}
 
 			return []byte(os.Getenv("AT_SECRET")), nil
 		})
 
-		if err != nil ||!token.Valid{
+		if err != nil || !token.Valid {
 			log.Printf("Error while parsing token: %v", err)
 			http.Error(w, "Unauthorised: Invalid token", http.StatusUnauthorized)
 			return
 		}
 
 		next.ServeHTTP(w, r)
-		
+
 	})
 }
-
 
 func extractToken(r *http.Request) string {
 	token := r.Header.Get("Authorization")

@@ -4,20 +4,19 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/joho/godotenv"
 	"github.com/dee-d-dev/api/v1/router"
 	"github.com/dee-d-dev/database"
+	"github.com/joho/godotenv"
 )
-
 
 func main() {
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("No .env file found")
 	}
-	
-	db := database.Connect()	
-	
+
+	db := database.Connect()
+
 	database.New(db)
 
 	router := router.SetupRoutes()
@@ -27,6 +26,4 @@ func main() {
 
 	http.ListenAndServe(port, router)
 
-	
 }
-

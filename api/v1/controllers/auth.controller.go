@@ -5,12 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dee-d-dev/utils"
 	"github.com/dee-d-dev/api/v1/models"
 	"github.com/dee-d-dev/database"
-
+	"github.com/dee-d-dev/utils"
 )
-
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -18,7 +16,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	db := database.Connect()
 
 	var user models.Users
-
 
 	json.NewDecoder(r.Body).Decode(&user)
 
@@ -29,7 +26,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Password = hashedPassword
-
 
 	result := db.Create(&user)
 
@@ -45,16 +41,16 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 type LoginDetails struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type LoginResponse struct {
-	AccessToken string
+	AccessToken  string
 	RefreshToken string
 }
 
-func Login(w http.ResponseWriter, r *http.Request){
+func Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	db := database.Connect()
@@ -99,22 +95,21 @@ func Login(w http.ResponseWriter, r *http.Request){
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(LoginResponse{
-		AccessToken: accessToken,
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
 }
 
-func ProtectedEndpoint (w http.ResponseWriter, r *http.Request) {
+func ProtectedEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&Response{
 		Message: "You are authorized",
-		Status: http.StatusOK,
+		Status:  http.StatusOK,
 	})
 }
 
 // func Refresh(w http.ResponseWriter, r *http.Request) {
-	
 
 // 	refreshToken, err := utils.GenerateRefreshToken()
 

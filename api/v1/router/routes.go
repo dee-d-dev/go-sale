@@ -11,7 +11,6 @@ import (
 func SetupRoutes() *mux.Router {
 	r := mux.NewRouter()
 
-	
 	v1 := r.PathPrefix("/api/v1").Subrouter()
 
 	// handler := &database.Handler{}
@@ -28,5 +27,4 @@ func SetupRoutes() *mux.Router {
 	// v1.Handle("/refresh", controllers.Refresh).Methods("POST")
 	return r
 
-	
 }

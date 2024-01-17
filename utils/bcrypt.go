@@ -16,4 +16,3 @@ func CheckPasswordHash(hashedPassword string, password string) bool {
 
 	return err == nil
 }
- 

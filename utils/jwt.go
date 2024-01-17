@@ -10,12 +10,10 @@ import (
 
 // var atSecretKey string
 
-
 type Claims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
-
 
 func GenerateAccessToken(email string) (string, error) {
 	AT_SECRET, exists := os.LookupEnv("AT_SECRET")
@@ -39,12 +37,10 @@ func GenerateAccessToken(email string) (string, error) {
 		return "", err
 	}
 
-	
 	return accessTokenString, nil
 }
 
-
-func GenerateRefreshToken(email string) (string, error ){
+func GenerateRefreshToken(email string) (string, error) {
 	RT_SECRET, exists := os.LookupEnv("RT_SECRET")
 
 	if !exists {

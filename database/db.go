@@ -4,9 +4,9 @@ import (
 	"os"
 
 	"github.com/dee-d-dev/api/v1/models"
-	"log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 )
 
 func Connect() *gorm.DB {
