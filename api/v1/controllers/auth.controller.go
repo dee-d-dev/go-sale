@@ -8,6 +8,7 @@ import (
 	"github.com/dee-d-dev/api/v1/models"
 	"github.com/dee-d-dev/database"
 	"github.com/dee-d-dev/utils"
+
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -109,17 +110,53 @@ func ProtectedEndpoint(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// func Refresh(w http.ResponseWriter, r *http.Request) {
+type RefreshToken struct{
+	Token string `json:"refresh_token"`
+}
 
-// 	refreshToken, err := utils.GenerateRefreshToken()
+type RefreshTokenResponse struct{
+	AccessToken string `json:"access_token"`
+}
 
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+func Refresh(w http.ResponseWriter, r *http.Request) {
 
-// 	if(refreshToken != r.Header.Get("Authorization")) {
-// 		log.Fatal("Invalid refresh token")
-// 	}
+	db := database.Connect()
+	var rt RefreshToken
+	var user models.Users
+	err := json.NewDecoder(r.Body).Decode(&rt)
 
-// 	w.Header().Set("Content-Type", "application/json")
-// }
+
+	if err != nil {
+		log.Fatal(err)
+		
+	}
+
+	err = db.Where("r_token = ?", rt.Token).First(&user).Error
+
+	if err != nil {
+		
+		log.Fatal(err)
+	}
+
+	// newAccessTokenExpiration := time.Now().Add(15 * time.Minute)
+	
+	newAcessToken, err := utils.GenerateAccessToken(user.Email)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+
+	// if(rt != r.Header.Get("Authorization")) {
+	// 	log.Fatal("Invalid refresh token")
+	// }
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(&RefreshTokenResponse{
+		AccessToken: newAcessToken,
+	})
+
+}
