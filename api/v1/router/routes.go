@@ -27,7 +27,12 @@ func SetupRoutes() *mux.Router {
 	v1.Handle("/protected", middlewares.TokenMiddleWare(protectedWithMiddlware)).Methods("GET")
 
 	createProduct := http.HandlerFunc(controllers.CreateProduct)
-	v1.Handle("/createProduct", middlewares.TokenMiddleWare(createProduct)).Methods("POST")
+	v1.Handle("/products", middlewares.TokenMiddleWare(createProduct)).Methods("POST")
+
+	getAllProducts := http.HandlerFunc(controllers.GetProducts)
+	v1.Handle("/products", middlewares.TokenMiddleWare(getAllProducts)).Methods("GET")
+
+
 
 	return r
 

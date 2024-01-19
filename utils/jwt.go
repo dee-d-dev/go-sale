@@ -97,7 +97,7 @@ func GetLoggedInUser(r *http.Request) (string, error) {
 
 	if !ok {
 		return "", fmt.Errorf("Error parsing JWT claims")
-	}
+	}	
 
 	return claims.Subject, nil
 }

@@ -10,6 +10,6 @@ type User struct {
 	Email     string `json:"email" gorm:"type:varchar(100);unique_index;not null"`
 	Password  string `json:"-" gorm:"not null"`
 	Address   string `json:"address" gorm:"not null"`
-	RToken    string `json:"rToken"`
+	RToken    string `json:"-"`
 	Products  []Product `json:"products" gorm:"foreignkey:MerchantID"`
 }
