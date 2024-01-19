@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -28,6 +30,7 @@ func GenerateAccessToken(email string) (string, error) {
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
+			Subject: email,
 		},
 	})
 
@@ -64,4 +67,37 @@ func GenerateRefreshToken(email string) (string, error) {
 
 	return refreshTokenString, nil
 
+}
+
+func GetLoggedInUser(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("access_token")
+
+	if err != nil {
+		return "", err
+	}
+
+	tokenString := cookie.Value
+
+	AT_SECRET, exists := os.LookupEnv("AT_SECRET")
+
+	if !exists {
+		log.Fatal("AT_SECRET not set")
+	}
+
+	atSecretKeyExists := []byte(AT_SECRET)
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return atSecretKeyExists, nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	claims, ok := token.Claims.(*jwt.StandardClaims)
+
+	if !ok {
+		return "", fmt.Errorf("Error parsing JWT claims")
+	}
+
+	return claims.Subject, nil
 }

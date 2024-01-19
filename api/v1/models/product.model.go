@@ -13,6 +13,8 @@ type Product struct {
 	Color       string  `json:"color"`
 	Size        string  `json:"size"`
 	Images      []Image `json:"images" gorm:"foreignKey:ProductID"`
+	MerchantID  uint    `json:"merchant_id" gorm:"not null"` // Foreign key referencing User's ID
+	Merchant    User    `json:"merchant" gorm:"foreignKey:MerchantID"`
 }
 
 type Image struct {

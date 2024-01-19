@@ -8,7 +8,6 @@ import (
 	"github.com/dee-d-dev/api/v1/models"
 	"github.com/dee-d-dev/database"
 	"github.com/dee-d-dev/utils"
-
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +15,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	db := database.Connect()
 
-	var user models.Users
+	var user models.User
 
 	json.NewDecoder(r.Body).Decode(&user)
 
@@ -60,7 +59,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&credentials)
 
-	var existingUser models.Users
+	var existingUser models.User
 
 	result := db.Where("email = ?", credentials.Email).First(&existingUser)
 
@@ -81,11 +80,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "access_token",
-		Value: accessToken,
+		Name:     "access_token",
+		Value:    accessToken,
 		HttpOnly: true,
 	})
-
 
 	refreshToken, err := utils.GenerateRefreshToken(existingUser.Email)
 
@@ -94,12 +92,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "refresh_token",
-		Value: refreshToken,
+		Name:     "refresh_token",
+		Value:    refreshToken,
 		HttpOnly: true,
 	})
 
-	resultT := db.Model(&models.Users{}).Where("email = ?", existingUser.Email).Update("r_token", refreshToken)
+	resultT := db.Model(&models.User{}).Where("email = ?", existingUser.Email).Update("r_token", refreshToken)
 
 	if resultT.Error != nil {
 		log.Fatal(resultT.Error)
@@ -123,11 +121,11 @@ func ProtectedEndpoint(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type RefreshToken struct{
+type RefreshToken struct {
 	Token string `json:"refresh_token"`
 }
 
-type RefreshTokenResponse struct{
+type RefreshTokenResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
@@ -135,16 +133,14 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 
 	db := database.Connect()
 	// var rt RefreshToken
-	var user models.Users
+	var user models.User
 	// // err := json.NewDecoder(r.Body).Decode(&rt)
-
 
 	// if err != nil {
 	// 	log.Fatal(err)
-		
+
 	// }
 
-	
 	refreshCookie, err := r.Cookie("refresh_token")
 
 	if err != nil {
@@ -154,12 +150,12 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	err = db.Where("r_token = ?", refreshCookie.Value).First(&user).Error
 
 	if err != nil {
-		
+
 		log.Fatal(err)
 	}
 
 	// newAccessTokenExpiration := time.Now().Add(15 * time.Minute)
-	
+
 	newAcessToken, err := utils.GenerateAccessToken(user.Email)
 
 	if err != nil {
@@ -167,12 +163,10 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "access_token",
-		Value: newAcessToken,
+		Name:     "access_token",
+		Value:    newAcessToken,
 		HttpOnly: true,
 	})
-
-
 
 	// if(rt != r.Header.Get("Authorization")) {
 	// 	log.Fatal("Invalid refresh token")

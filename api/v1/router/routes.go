@@ -22,10 +22,12 @@ func SetupRoutes() *mux.Router {
 	v1.HandleFunc("/login", controllers.Login).Methods("POST")
 
 	v1.HandleFunc("/refresh", controllers.Refresh).Methods("POST")
-	
+
 	protectedWithMiddlware := http.HandlerFunc(controllers.ProtectedEndpoint)
 	v1.Handle("/protected", middlewares.TokenMiddleWare(protectedWithMiddlware)).Methods("GET")
 
+	createProduct := http.HandlerFunc(controllers.CreateProduct)
+	v1.Handle("/createProduct", middlewares.TokenMiddleWare(createProduct)).Methods("POST")
 
 	return r
 
