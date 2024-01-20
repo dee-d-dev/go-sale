@@ -30,7 +30,7 @@ func GenerateAccessToken(email string) (string, error) {
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
-			Subject: email,
+			Subject:   email,
 		},
 	})
 
@@ -97,7 +97,7 @@ func GetLoggedInUser(r *http.Request) (string, error) {
 
 	if !ok {
 		return "", fmt.Errorf("Error parsing JWT claims")
-	}	
+	}
 
 	return claims.Subject, nil
 }

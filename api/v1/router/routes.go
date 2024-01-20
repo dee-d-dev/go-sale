@@ -32,7 +32,14 @@ func SetupRoutes() *mux.Router {
 	getAllProducts := http.HandlerFunc(controllers.GetProducts)
 	v1.Handle("/products", middlewares.TokenMiddleWare(getAllProducts)).Methods("GET")
 
+	getAllUsers := http.HandlerFunc(controllers.GetUsers)
+	v1.Handle("/users", middlewares.TokenMiddleWare(getAllUsers)).Methods("GET")
 
+	getSingleUser := http.HandlerFunc(controllers.GetUser)
+	v1.Handle("/users/{userId}", middlewares.TokenMiddleWare(getSingleUser)).Methods("GET")
+
+	createCategory := http.HandlerFunc(controllers.CreateCategory)
+	v1.Handle("/categories", middlewares.TokenMiddleWare(createCategory)).Methods("POST")
 
 	return r
 
