@@ -43,7 +43,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	product := models.Product{
 		Name:        productDetails.Name,
 		Description: productDetails.Description,
-		Category:    productDetails.Category,
+		CategoryID:    productDetails.CategoryID,
 		Price:       productDetails.Price,
 		Stock:       productDetails.Stock,
 		Brand:       productDetails.Brand,
@@ -53,7 +53,25 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		MerchantID:  user.ID,
 		Merchant:    user,
 	}
-	db.Create(&product)
+
+	product.CategoryID = uint(product.CategoryID)
+
+	var category models.Category
+
+	if err := db.Where("id = ?", product.CategoryID).First(&category).Error; err != nil {
+		http.Error(w, "Category not found", http.StatusNotFound)
+		return
+	}
+
+	product.Category = category
+
+	result := db.Create(&product)
+
+	if result.Error != nil {
+		http.Error(w, "Error creating product", http.StatusInternalServerError)
+		log.Println("Error creating product:", result.Error)
+		return
+	}
 
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -90,30 +108,6 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// productsJSON, err := json.Marshal(products)
-
-	// if err != nil {
-	// 	http.Error(w, "Error encoding products to JSON", http.StatusInternalServerError)
-	//     log.Println("Error encoding products to JSON:", err)
-	//     return
-	// }
-
-	// var productResponses []ProductResponse
-
-	// for _, product := range products {
-	//     productResponses = append(productResponses, ProductResponse{
-	//         ID:   product.ID,
-	//         Name: product.Name,
-	// 		Description: product.Description,
-	// 		Price: product.Price,
-	// 		Stock: product.Stock,
-	// 		Category: product.Category,
-	// 		Brand: product.Brand,
-	// 		Color: product.Color,
-	// 		Size: product.Size,
-	// 		Images: product.Images,
-	//     })
-	// }
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
@@ -122,25 +116,4 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func CreateCategory(w http.ResponseWriter, r *http.Request){
-	db := database.Connect()
 
-	var category models.Category
-
-	err := json.NewDecoder(r.Body).Decode(&category)
-
-	if err != nil {
-		http.Error(w, "Error decoding json", http.StatusInternalServerError)
-	}
-
-	result := db.Create(&category)
-
-	if result.Error != nil {
-		http.Error(w, "Error creating category", http.StatusInternalServerError)
-	}
-
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	json.NewEncoder(w).Encode(category)
-}

@@ -9,7 +9,8 @@ type Product struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Stock       int     `json:"stock"`
-	Category    string  `json:"category"`
+	CategoryID  uint    `json:"category_id" gorm:"not null type:uint"`
+	Category    Category  `json:"category" gorm:"foreignKey:CategoryID"`
 	Brand       string  `json:"brand"`
 	Color       *string  `json:"color"`
 	Size        string  `json:"size"`
